@@ -1,18 +1,21 @@
 <template>
   <div class="container">
+    <h1>Time tracking app</h1>
     <div class="input-group">
-      <h2>Please enter time of work (hh:mm)</h2>
+      <h2>Please enter time of work (in minutes)</h2>
       <input v-model="userTime" type="number" />
       <h2>Please enter subject of work</h2>
       <input v-model="userSubject" type="text" />
-      <p></p>
+      <br />
       <button @click="addNote">Add record</button>
     </div>
     <div class="records-list">
-      <TimeCounter />
+      <h2>Total time spend:</h2>
       <ul>
         <li v-for="record in records" :key="record.id">
-          Time: {{ record.time }} Subject: {{ record.subject }}
+          Time (h): <input type="number" :placeholder="record.time" /> <br />
+          Subject:
+          {{ record.subject }}
         </li>
       </ul>
     </div>
@@ -21,15 +24,18 @@
 
 <script setup>
 import { ref } from 'vue'
-import TimeCounter from './TimeCounter.vue'
-
 const userTime = ref('')
 const userSubject = ref('')
 const records = ref([])
+// const showModal = ref(false)
 
 const addNote = () => {
+  let convertedTime
+  if (userTime.value > 60) {
+    convertedTime = (userTime.value / 60).toFixed(2)
+  }
   records.value.push({
-    time: userTime.value,
+    time: convertedTime,
     subject: userSubject.value,
     id: Math.floor(Math.random() * 100000)
   })
@@ -47,6 +53,7 @@ const addNote = () => {
     input {
       border-radius: 5px;
     }
+
     button {
       background-color: aquamarine;
       width: 6rem;
