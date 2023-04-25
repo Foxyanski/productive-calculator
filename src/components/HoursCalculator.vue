@@ -10,14 +10,13 @@
       <button @click="addRecord">Add record</button>
     </div>
     <div class="records-list">
-      <h2>Total time spend:</h2>
-      <ul>
+      <h2>Total time spend: {{ totalTime }}m or {{ totalTimeHours }}h</h2>
+      <ul class="records">
         <li v-for="record in records" :key="record.id">
-          <p>Time: {{ record.time }}</p>
+          <p>Time: {{ record.time }}m</p>
           <p>Subject: {{ record.subject }}</p>
-          <button @click=";(showModal = !showModal), (selectedRecord = record)" class="open">
-            Edit
-          </button>
+          <button @click=";(showModal = !showModal), (selectedRecord = record)">Edit</button>
+          <button @click="deleteRecord(record)">Delete</button>
         </li>
       </ul>
     </div>
@@ -33,30 +32,35 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 const userTime = ref('')
 const userSubject = ref('')
 const records = ref([])
 const showModal = ref(false)
 const selectedRecord = ref(null)
 const newTime = ref('')
+const totalTime = computed(() => {
+  return records.value.reduce((total, item) => total + item.time, 0)
+})
+
+const totalTimeHours = computed(() => {
+  return (totalTime.value / 60).toFixed(2)
+})
 
 const addRecord = () => {
-  let convertedTime
-  if (userTime.value > 60) {
-    convertedTime = (userTime.value / 60).toFixed(2)
-  }
+  let recordTime = userTime.value
   records.value.push({
-    time: convertedTime,
+    time: recordTime,
     subject: userSubject.value,
     id: Math.floor(Math.random() * 100000)
   })
+  userSubject.value = ''
+  userTime.value = ''
 }
 
-// const editRecord = () => {
-//   selectedRecord.value.editing = true
-//   newTime.value = selectedRecord.value.time
-// }
+const deleteRecord = (record) => {
+  records.value.splice(records.value.indexOf(record), 1)
+}
 
 const saveRecord = () => {
   selectedRecord.value.time = newTime.value
@@ -75,30 +79,49 @@ const cancelEdit = () => {
 <style lang="scss" scoped>
 .container {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
+  margin: auto;
+  justify-content: center;
+  align-items: center;
+
   .input-group {
     margin: 0 2rem;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
     input {
       border-radius: 5px;
+      width: 10rem;
+      margin: auto;
     }
 
     button {
-      background-color: aquamarine;
+      background-color: rgb(37, 221, 160);
       width: 6rem;
       height: 2rem;
       border-radius: 5px;
-      color: rgb(44, 182, 197);
+      color: rgb(2, 5, 4);
       cursor: pointer;
+      margin: auto;
+
+      &:hover {
+        background-color: rgb(53, 187, 143);
+      }
     }
   }
 
   .records-list {
     min-width: 10rem;
-
+    display: flex;
+    align-items: center;
+    flex-direction: column;
     ul {
+      display: flex;
+      flex-direction: row;
       li {
-        margin-bottom: 5px;
+        margin: 1rem;
         .overlay {
           margin: 0 2rem;
           .modal {
@@ -106,6 +129,9 @@ const cancelEdit = () => {
               display: inline;
             }
           }
+        }
+        button {
+          margin: 0.3rem;
         }
       }
     }
